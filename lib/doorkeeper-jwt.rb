@@ -9,7 +9,8 @@ module Doorkeeper
         ::JWT.encode(
           token_payload(opts),
           secret_key,
-          encryption_method
+          encryption_method,
+          header_payload(opts)
         )
       end
 
@@ -19,11 +20,21 @@ module Doorkeeper
         Doorkeeper::JWT.configuration.token_payload.call opts
       end
 
+      def header_payload(opts = {})
+        Doorkeeper::JWT.configuration.header_payload.call opts
+      end
+
       def secret_key
+        return secret_key_method unless secret_key_method.nil?
         return secret_key_file unless secret_key_file.nil?
         return rsa_key if rsa_encryption?
         return ecdsa_key if ecdsa_encryption?
         Doorkeeper::JWT.configuration.secret_key
+      end
+
+      def secret_key_method
+        method = Doorkeeper::JWT.configuration.secret_key_method.call
+        method.nil? ? nil : method
       end
 
       def secret_key_file

@@ -104,6 +104,10 @@ module Doorkeeper
 
       option :token_payload,
         default: proc{ { token: SecureRandom.method(:hex) } }
+      option :header_payload, 
+        default: proc{ { } }
+      option :secret_key_method, 
+        default: proc{ nil }
       option :secret_key, default: nil
       option :secret_key_path, default: nil
       option :encryption_method, default: nil

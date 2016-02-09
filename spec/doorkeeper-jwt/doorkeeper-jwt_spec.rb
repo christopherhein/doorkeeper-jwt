@@ -48,6 +48,35 @@ describe Doorkeeper::JWT do
       expect(decoded_token[1]["alg"]).to eq "none"
     end
 
+    it "creates a signed JWT token encrypted with a secret key method" do
+      Doorkeeper::JWT.configure do
+        token_payload do
+          {
+            foo: "bar"
+          }
+        end
+        header_payload do
+          {
+            kid: "v1"
+          }
+        end
+        secret_key_method do
+          version = Doorkeeper::JWT.configuration.header_payload.call[:kid]
+          OpenSSL::PKey::EC.new(File.read("spec/support/#{version}key.pem"))
+        end
+        encryption_method :es512
+      end
+
+      token = Doorkeeper::JWT.generate({})
+      key_file = File.read("spec/support/512key_pub.pem")
+      secret_key = OpenSSL::PKey::EC.new key_file
+      decoded_token = ::JWT.decode(token, secret_key, true, algorithm: "ES512")
+      expect(decoded_token[0]).to be_a(Hash)
+      expect(decoded_token[0]["foo"]).to eq "bar"
+      expect(decoded_token[1]["typ"]).to eq "JWT"
+      expect(decoded_token[1]["alg"]).to eq "ES512"
+    end
+
     it "creates a signed encrypted JWT token" do
       Doorkeeper::JWT.configure do
         secret_key "super secret"

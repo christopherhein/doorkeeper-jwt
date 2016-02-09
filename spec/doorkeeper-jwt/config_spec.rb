@@ -20,6 +20,22 @@ describe Doorkeeper::JWT, 'configuration' do
     end
   end
 
+  describe 'header_payload' do
+    it 'defaults to nil' do
+      Doorkeeper::JWT.configure do
+      end
+      expect(subject.header_payload).to be_a(Proc)
+    end
+
+    it 'can change the value' do
+      block = proc { { kid: "v1" } }
+      Doorkeeper::JWT.configure do
+        header_payload &block
+      end
+      expect(subject.header_payload).to eq(block)
+    end
+  end
+
   describe 'encryption_method' do
     it 'defaults to nil' do
       Doorkeeper::JWT.configure do
