@@ -25,6 +25,14 @@ module Doorkeeper
           @config
         end
 
+        def public_key(secret_key)
+          @config.instance_variable_set('@public_key', public_key)
+        end
+
+        def public_key_path(secret_key_path)
+          @config.instance_variable_set('@public_key_path', public_key_path)
+        end
+
         def secret_key(secret_key)
           @config.instance_variable_set('@secret_key', secret_key)
         end
@@ -104,13 +112,27 @@ module Doorkeeper
 
       option :token_payload,
         default: proc{ { token: SecureRandom.method(:hex) } }
-      option :header_payload, 
+      option :header_payload,
         default: proc{ { } }
-      option :secret_key_method, 
+      option :public_key_method,
         default: proc{ nil }
+      option :secret_key_method,
+        default: proc{ nil }
+      option :token_deserializer,
+        default: proc{ nil }
+      option :public_key, default: nil
+      option :public_key_path, default: nil
       option :secret_key, default: nil
       option :secret_key_path, default: nil
       option :encryption_method, default: nil
+
+      def public_key
+        @public_key ||= nil
+      end
+
+      def public_key_path
+        @public_key_path ||= nil
+      end
 
       def secret_key
         @secret_key ||= nil
